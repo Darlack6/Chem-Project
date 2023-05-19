@@ -16,7 +16,7 @@ while True:
     image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(image,lower,upper)
 
-    contours, hierachy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) #Simple saves necessary points rather than chain_approx_none, saves memory
+    contours, hierachy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_none) #Simple saves necessary points rather than chain_approx_none, saves memory
 
     if len(contours) !=0:
         for contour in contours: 
