@@ -6,12 +6,12 @@ import numpy as np
 lower = np.array([100,170,90])
 upper = np.array([130,255,255])
 
-#video = cv2.VideoCapture(0)
+video = cv2.VideoCapture(0)
 
-rtmp="rtmp://172.20.10.12:1935/live"
-video = cv2.VideoCapture(rtmp)
+#rtmp="rtmp://172.20.10.12:1935/live"
+#video = cv2.VideoCapture(rtmp)
 
-def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
+def windowResize(image, width=None, height=None, inter=cv2.INTER_AREA):
     dim = None
     (h, w) = image.shape[:2]
 
@@ -39,8 +39,8 @@ while True:
                 x,y,w,h=cv2.boundingRect(contour)
                 cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255), 2)
 
-    img2=ResizeWithAspectRatio(img, width=580)
-    mask2=ResizeWithAspectRatio(mask, width=580)
+    img2=windowResize(img, width=1280)
+    mask2=windowResize(mask, width=580)
 
     #image=cv2.resize(image2,(960,540))
     #mask=cv2.resize(mask2, (960,540))
