@@ -1,4 +1,6 @@
 import cv2
+import cvlib as cv
+from cvlib.object_detection import draw_bbox
 import numpy as np
 
 #95-135
@@ -12,40 +14,44 @@ video = cv2.VideoCapture(0)
 #video = cv2.VideoCapture(rtmp)
 
 def windowResize(image, width=None, height=None, inter=cv2.INTER_AREA):
-    dim = None
+    adjustedsize = None
     (h, w) = image.shape[:2]
 
-    if width is None and height is None:
+    if width is None and height is None: # if no window size change is desired
         return image
-    if width is None:
+    if width is None: #if only height is entered
         r = height / float(h)
-        dim = (int(w * r), height)
+        adjustedsize = (int(w * r), height)
     else:
-        r = width / float(w)
-        dim = (width, int(h * r))
+        r = width / float(w) #if only width is entered
+        adjustedsize = (width, int(h * r))
 
-    return cv2.resize(image, dim, interpolation=inter)
+    return cv2.resize(image, adjustedsize, interpolation=inter)
 
 while True:
-    sucesss, img=video.read()
-    image2 = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(image2,lower,upper)
+    
+    ret, frame=video.read()
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(image,lower,upper)
 
-    contours, hierachy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) #Simple saves necessary points rather than chain_approx_none, saves memory
+    contours,hierachy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     if len(contours) !=0:
-        for contour in contours: 
-            if cv2.contourArea(contour) > 500:
-                x,y,w,h=cv2.boundingRect(contour)
-                cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255), 2)
+        for i in contours:
+            if cv2.contourArea(i) > 500:
+                bbox, label, conf = cv.detect_common_objects(frame)
+                output = draw_bbox(frame,bbox,label,conf)
+            else:
+                output=frame
 
-    img2=windowResize(img, width=1280)
+
+    livefeed=windowResize(frame, width=1280)
     mask2=windowResize(mask, width=580)
+    objectWindow=windowResize(output,width=580)
 
-    #image=cv2.resize(image2,(960,540))
-    #mask=cv2.resize(mask2, (960,540))
     cv2.imshow("mask",mask2)
-    cv2.imshow("webcam", img2)
+    cv2.imshow("webcam", livefeed)
+    cv2.imshow("Object dectection", objectWindow)
 
     if cv2.waitKey(1) & 0xff == ord('q'):
         break
