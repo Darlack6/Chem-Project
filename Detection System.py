@@ -83,10 +83,11 @@ while True:
             x,y,w,h=cv2.boundingRect(i)
             cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255), 2)
 
-            if classNames[itemName] in detectedObjects:
-                pass
-            else:
-                detectedObjects.append(classNames[itemName])
+            if(confidence>=0.50):
+                if classNames[itemName] in detectedObjects:
+                    pass
+                else:
+                    detectedObjects.append(classNames[itemName])
 
     maskwindow=windowResize(mask, width=580)
     colorwindow=windowResize(img, width=580)
@@ -94,6 +95,9 @@ while True:
     cv2.imshow("Mask",maskwindow)
     cv2.imshow("Color Detector", colorwindow)
     cv2.imshow("Object Detector", objects)
+
+    if cv2.waitKey(1) & 0xff == ord('w'):
+        print(detectedObjects)
 
     if cv2.waitKey(1) & 0xff == ord('q'):
         break
