@@ -5,17 +5,23 @@ import math
 import cvlib as cv
 import numpy as np
 
-
 video = cv2.VideoCapture(0)
+#video=cv2.VideoCapture("Test-Videos/pond.mp4")
+#video=cv2.VideoCapture("Test-Videos/lake.mp4")
 video.set(3,1280)
 video.set(4,720)
 
 model=YOLO("../Yolo-Weights/yolov8n.pt")
 
-lower = np.array([100,170,90])
-upper = np.array([130,255,255])
+#blue
+lower = np.array([100,170,100])
+upper = np.array([120,255,255])
 
-classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
+#white
+#lower = np.array([0, 0, 231])
+#upper = np.array([180, 18, 255])
+
+classNames = ["person", "bicycle", "car", "motorbike", "aqeroplane", "bus", "train", "truck", "boat",
               "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
               "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
               "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat",
@@ -46,9 +52,13 @@ def windowResize(image, width=None, height=None, inter=cv2.INTER_AREA):
 
 def objectNames():
     print("hello")
+confidence=0
 
 while True:
+    #Fetches for camera input
     ret, img=video.read()
+    if img is None:
+        break
     objects=img.copy()
 
     #To create mask:
