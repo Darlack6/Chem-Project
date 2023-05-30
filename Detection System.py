@@ -2,16 +2,20 @@ from ultralytics import YOLO
 import cv2
 import cvzone
 import math
-import cvlib as cv
 import numpy as np
+from datetime import datetime
+from threading import Timer
 
 video = cv2.VideoCapture(0)
-#video=cv2.VideoCapture("Test-Videos/pond.mp4")
+background=cv2.imread("background.jpg")
+#video=cv2.VideoCapture("Test-Videos/finalpond.mp4")
 #video=cv2.VideoCapture("Test-Videos/lake.mp4")
+#video=cv2.VideoCapture("Test-Videos/bottle.mp4")
+
 video.set(3,1280)
 video.set(4,720)
 
-model=YOLO("../Yolo-Weights/yolov8n.pt")
+model=YOLO("../Yolo-Weights/yolov8l.pt")
 
 #blue
 lower = np.array([100,170,100])
@@ -33,8 +37,6 @@ classNames = ["person", "bicycle", "car", "motorbike", "aqeroplane", "bus", "tra
               "teddy bear", "hair drier", "toothbrush"
               ]
 
-detectedObjects=[]
-
 def windowResize(image, width=None, height=None, inter=cv2.INTER_AREA):
     adjustedsize = None
     (h, w) = image.shape[:2]
@@ -50,9 +52,11 @@ def windowResize(image, width=None, height=None, inter=cv2.INTER_AREA):
 
     return cv2.resize(image, adjustedsize, interpolation=inter)
 
-def objectNames():
-    print("hello")
 confidence=0
+detectedObjects=[]
+time=[]
+objectsWithTime=[]
+counter=0
 
 while True:
     #Fetches for camera input
@@ -84,7 +88,7 @@ while True:
             itemName = int(box.cls[0])
 
             #prints the item name and confidence to screen
-            cvzone.putTextRect(objects,f'{classNames[itemName]}{confidence}',(max(0,x1),max(35,y1)),scale=1.5,thickness=1)
+            cvzone.putTextRect(objects,f'{classNames[itemName]}{confidence}',(max(0,x1),max(35,y1)),scale=2.5,thickness=2)
 
     #if len(contours) !=0:
     for i in contours:
@@ -93,26 +97,54 @@ while True:
             x,y,w,h=cv2.boundingRect(i)
             cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255), 2)
 
-            if(confidence>=0.50):
+            if(confidence>=0.60):
                 if classNames[itemName] in detectedObjects:
                     pass
                 else:
+                    now=datetime.now()
+                    current_time = now.strftime("%H:%M:%S")
                     detectedObjects.append(classNames[itemName])
+                    time.append(current_time)
+                    objectsWithTime=[detectedObjects[counter],time[counter]]
+                    counter+=1
+                    with open('Detected-Objects.txt','a') as f:
+                        f.write(str(objectsWithTime))
+                        f.write("\n")
 
-    maskwindow=windowResize(mask, width=580)
-    colorwindow=windowResize(img, width=580)
+                    #f=open('Detected-Objects.txt','a')
+                    #f.write(str(objectsWithTime))
+                    #f.write("\n")
+                    #f.close()
+                        
 
-    cv2.imshow("Mask",maskwindow)
-    cv2.imshow("Color Detector", colorwindow)
-    cv2.imshow("Object Detector", objects)
+    maskwindow=windowResize(mask, width=720)
+    colorwindow=windowResize(img, width=720)
+    objectwindow=windowResize(objects, width=1280)
+
+    maskwindowname="Mask Window"
+    cv2.namedWindow(maskwindowname)
+    cv2.moveWindow(maskwindowname, 250,850)
+
+    colorwindowname="Color Detector"
+    cv2.namedWindow(colorwindowname)
+    cv2.moveWindow(colorwindowname, 1400,850)
+
+    objectwindowname="Object Detector"
+    cv2.namedWindow(objectwindowname)
+    cv2.moveWindow(objectwindowname, 750,30)
+
+    cv2.imshow(" ",background)
+    cv2.imshow(maskwindowname,maskwindow)
+    cv2.imshow(colorwindowname, colorwindow)
+    cv2.imshow(objectwindowname, objectwindow)
 
     if cv2.waitKey(1) & 0xff == ord('w'):
-        print(detectedObjects)
+        print(objectsWithTime)
 
     if cv2.waitKey(1) & 0xff == ord('q'):
         break
 
 video.release()
 cv2.destroyAllWindows()
-
-print(detectedObjects)
+f.close()
+print(objectsWithTime)
