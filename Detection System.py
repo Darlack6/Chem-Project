@@ -52,11 +52,10 @@ def windowResize(image, width=None, height=None, inter=cv2.INTER_AREA):
 
     return cv2.resize(image, adjustedsize, interpolation=inter)
 
-confidence=0
+confidence=counter= 0
 detectedObjects=[]
 time=[]
 objectsWithTime=[]
-counter=0
 
 while True:
     #Fetches for camera input
@@ -70,6 +69,7 @@ while True:
     mask = cv2.inRange(image,lower,upper)
     contours,hierachy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
+    #For object detection
     results=model(img,stream=True,verbose=False)
 
     for r in results:
@@ -97,10 +97,11 @@ while True:
             x,y,w,h=cv2.boundingRect(i)
             cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255), 2)
 
+            #appends object to list
             if(confidence>=0.60):
                 if classNames[itemName] in detectedObjects:
                     pass
-                else:
+                else: #writes object and time to file
                     now=datetime.now()
                     current_time = now.strftime("%H:%M:%S")
                     detectedObjects.append(classNames[itemName])
@@ -109,42 +110,33 @@ while True:
                     counter+=1
                     with open('Detected-Objects.txt','a') as f:
                         f.write(str(objectsWithTime))
-                        f.write("\n")
+                        f.write("\n")                 
 
-                    #f=open('Detected-Objects.txt','a')
-                    #f.write(str(objectsWithTime))
-                    #f.write("\n")
-                    #f.close()
-                        
-
+    #resizes windows
     maskwindow=windowResize(mask, width=720)
     colorwindow=windowResize(img, width=720)
     objectwindow=windowResize(objects, width=1280)
 
+    #adjust windows positions
     maskwindowname="Mask Window"
     cv2.namedWindow(maskwindowname)
     cv2.moveWindow(maskwindowname, 250,850)
-
     colorwindowname="Color Detector"
     cv2.namedWindow(colorwindowname)
     cv2.moveWindow(colorwindowname, 1400,850)
-
     objectwindowname="Object Detector"
     cv2.namedWindow(objectwindowname)
     cv2.moveWindow(objectwindowname, 750,30)
 
+    #display windows
     cv2.imshow(" ",background)
     cv2.imshow(maskwindowname,maskwindow)
     cv2.imshow(colorwindowname, colorwindow)
     cv2.imshow(objectwindowname, objectwindow)
-
-    if cv2.waitKey(1) & 0xff == ord('w'):
-        print(objectsWithTime)
-
+    
+    #exit statemetn
     if cv2.waitKey(1) & 0xff == ord('q'):
         break
 
 video.release()
 cv2.destroyAllWindows()
-f.close()
-print(objectsWithTime)
