@@ -113,28 +113,28 @@ while True:
                         f.write("\n")                 
 
     #resizes windows
-    maskwindow=windowResize(mask, width=720)
-    colorwindow=windowResize(img, width=720)
-    objectwindow=windowResize(objects, width=1280)
+    maskwindow=windowResize(mask, width=360)
+    colorwindow=windowResize(img, width=360)
+    objectwindow=windowResize(objects, width=720)
 
     #adjust windows positions
     maskwindowname="Mask Window"
     cv2.namedWindow(maskwindowname)
-    cv2.moveWindow(maskwindowname, 250,850)
+    #cv2.moveWindow(maskwindowname, 150,850)
     colorwindowname="Color Detector"
     cv2.namedWindow(colorwindowname)
-    cv2.moveWindow(colorwindowname, 1400,850)
+    #cv2.moveWindow(colorwindowname, 600,850)
     objectwindowname="Object Detector"
     cv2.namedWindow(objectwindowname)
-    cv2.moveWindow(objectwindowname, 750,30)
+    cv2.moveWindow(objectwindowname, 300,30)
 
     #display windows
-    cv2.imshow(" ",background)
+    #cv2.imshow(" ",background)
     cv2.imshow(maskwindowname,maskwindow)
     cv2.imshow(colorwindowname, colorwindow)
     cv2.imshow(objectwindowname, objectwindow)
     
-    #exit statemetn
+    #exit statement
     if cv2.waitKey(1) & 0xff == ord('q'):
         break
 
